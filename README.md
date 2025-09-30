@@ -8,7 +8,7 @@ cd autonomia/
 
 ## Prerequisities
 
-- Python 3.10 or newer
+- Python 3.13 or newer
 - UV installed
 
 ### Install UV
