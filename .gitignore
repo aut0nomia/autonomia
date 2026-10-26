@@ -34,7 +34,12 @@ compile_commands.json
 .cache/
 
 # IDE and Editor files
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/c_cpp_properties.json
 .idea/
 *.swp
 *~

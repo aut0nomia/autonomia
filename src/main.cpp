@@ -1,6 +1,11 @@
+<<<<<<< Updated upstream
 #include "task.hpp"
 
 #include <algorithm>
+=======
+#include <algorithm>
+#include <format>
+>>>>>>> Stashed changes
 #include <iostream>
 #include <vector>
 
