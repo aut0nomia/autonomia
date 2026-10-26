@@ -1,17 +1,8 @@
+#include "task.hpp"
+
+#include <algorithm>
 #include <iostream>
-#include <string_view>
 #include <vector>
-
-using namespace std;
-
-struct Task {
-  std::string_view name;
-  int priority{};
-};
-
-auto format_status(const Task &task) -> std::string {
-  return format("[Priority {}] {}", task.priority, task.name);
-}
 
 int main() {
   auto tasks = std::vector<Task>{

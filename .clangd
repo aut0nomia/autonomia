@@ -1,10 +1,10 @@
 
 CompileFlags:
-  # Tell clangd where CMakePresets.json puts compile_commands.json
-  CompilationDatabase: build/debug
+  # Tell clangd where compile_commands.json is located
+  CompilationDatabase: .
   
   # Extra flags applied only during IDE analysis (doesn't affect actual build)
-  Add: [-Wall, -Wextra, -Wpedantic]
+  Add: [-std=c++20, -Wall, -Wextra, -Wpedantic]
 
   # Strip out compiler flags from GCC/NVCC that clangd's parser doesn't understand
   Remove: [-fmodules-ts, -mno-direct-extern-access]
