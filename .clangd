@@ -1,0 +1,34 @@
+
+CompileFlags:
+  # Tell clangd where CMakePresets.json puts compile_commands.json
+  CompilationDatabase: build/debug
+  
+  # Extra flags applied only during IDE analysis (doesn't affect actual build)
+  Add: [-Wall, -Wextra, -Wpedantic]
+
+  # Strip out compiler flags from GCC/NVCC that clangd's parser doesn't understand
+  Remove: [-fmodules-ts, -mno-direct-extern-access]
+
+Diagnostics:
+  # Run clang-tidy checks automatically in the background across all 3 editors
+  ClangTidy:
+    Add:
+      - bugprone-*
+      - modernize-*
+      - performance-*
+      - readability-*
+    Remove:
+      - modernize-use-trailing-return-type
+      - readability-magic-numbers
+  
+  # Warn when you #include a header you aren't actually using in the file
+  UnusedIncludes: Strict
+
+InlayHints:
+  Enabled: true
+  ParameterNames: true
+  DeducedTypes: true
+  Designators: true
+
+Hover:
+  ShowAKA: true
