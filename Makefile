@@ -1,5 +1,6 @@
 CXX      := g++
-CXXFLAGS := -std=c++20 -Wall -Wextra -g -Iinclude -MMD -MP
+CXXFLAGS := -std=c++20 -Wall -Wextra -g -Iinclude -MMD -MP $(shell sdl2-config --cflags)
+LDFLAGS  := $(shell sdl2-config --libs)
 BUILD    := build
 TARGET   := $(BUILD)/app
 
@@ -23,7 +24,7 @@ test: $(TEST_TARGET)
 	./$(TEST_TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(OBJS) -o $@
+	$(CXX) $(OBJS) $(LDFLAGS) -o $@
 
 $(BUILD)/%.o: src/%.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

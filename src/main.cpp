@@ -1,21 +1,6 @@
-#include "task.hpp"
-#include <algorithm>
-#include <format>
-#include <iostream>
-#include <vector>
+#include "game_loop.hpp"
 
 int main() {
-  auto tasks = std::vector<Task>{
-      {.name = "Configure CMakePresets", .priority = 1},
-      {.name = "Verify clangd inlay hints", .priority = 2},
-      {.name = "Test build across editors", .priority = 3},
-  };
-
-  std::ranges::sort(tasks, {}, &Task::priority);
-
-  for (const auto &task : tasks) {
-    std::cout << format_status(task) << '\n';
-  }
-
+  run_game();
   return 0;
 }

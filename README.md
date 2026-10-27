@@ -10,6 +10,18 @@ Modern C++20 project configured with `make` and `clangd` LSP integration.
 - **Build Tool**: `make`
 - **Optional**: [`bear`](https://github.com/rizsotto/Bear) (for generating `compile_commands.json` for LSP servers)
 
+### Dependencies
+
+| Library | Purpose |
+|---------|---------|
+| [SDL2](https://www.libsdl.org/) | Windowing, input, and 2D rendering |
+
+#### Fedora
+
+```sh
+sudo dnf install SDL2-devel
+```
+
 ---
 
 ## Quick Start
@@ -75,11 +87,8 @@ make compdb
 ```text
 autonomia/
 ├── include/              # Header files (.hpp)
-│   └── task.hpp
 ├── src/                  # Application source files (.cpp)
-│   └── main.cpp
 ├── tests/                # Test source files (.cpp)
-│   └── test_main.cpp
 ├── .clangd               # clangd LSP configuration
 ├── compile_commands.json # Clang compilation database
 ├── Makefile              # Build automation script
