@@ -1,4 +1,5 @@
 #include "game_loop.hpp"
+#include "config.hpp"
 #include "game_state.hpp"
 #include "input.hpp"
 #include "physics.hpp"
@@ -12,7 +13,28 @@ using namespace std::chrono_literals;
 constexpr std::chrono::nanoseconds timestep(16ms);
 
 void run_game() {
-  // TODO: SDL_Init, SDL_CreateWindow, SDL_CreateRenderer
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    SDL_Log("SDL_Init failed: %s", SDL_GetError());
+    return;
+  }
+
+  SDL_Window *window = SDL_CreateWindow("Autonomia", SDL_WINDOWPOS_CENTERED,
+                                        SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
+                                        WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+  if (window == nullptr) {
+    SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
+    SDL_Quit();
+    return;
+  }
+
+  SDL_Renderer *renderer = SDL_CreateRenderer(
+      window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+  if (renderer == nullptr) {
+    SDL_Log("SDL_CreateRenderer failed: %s", SDL_GetError());
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return;
+  }
 
   using clock = std::chrono::high_resolution_clock;
 
@@ -43,9 +65,10 @@ void run_game() {
     auto alpha = (float)lag.count() / timestep.count();
     auto interpolated_state = interpolate(current_state, previous_state, alpha);
 
-    // TODO: pass your SDL_Renderer* to render()
-    // render(renderer, interpolated_state);
+    render(renderer, interpolated_state);
   }
 
-  // TODO: SDL_DestroyRenderer, SDL_DestroyWindow, SDL_Quit
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
 }

@@ -1,7 +1,10 @@
 #include "input.hpp"
 
-// TODO: poll SDL events, return true on SDL_QUIT
 bool handle_events(SDL_Event &event) {
-  // Your implementation here
+  while (SDL_PollEvent(&event) != 0) {
+    if (event.type == SDL_QUIT) {
+      return true;
+    }
+  }
   return false;
 }
