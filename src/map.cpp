@@ -2,7 +2,7 @@
 #include <random>
 #include <algorithm>
 
-static std::mt19937 rng(1337);
+static std::mt19937 rng(std::random_device{}());
 
 bool is_solid_tile(int col, int row) {
   if (row >= MAP_ROWS) return true; // bottom is solid floor
@@ -22,7 +22,12 @@ const char* get_map_buffer() {
   return &g_map[0][0];
 }
 
-void generate_random_level(game_state &state) {
+void generate_random_level(game_state &state, std::optional<unsigned int> seed_override) {
+  // Use passed seed or generate a new random seed
+  unsigned int seed = seed_override.value_or(std::random_device{}() % 1000000);
+  state.seed = seed;
+  rng.seed(seed);
+
   // 1. Clear everything to air '.'
   for (int r = 0; r < MAP_ROWS; ++r) {
     for (int c = 0; c < MAP_COLS; ++c) {

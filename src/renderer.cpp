@@ -7,7 +7,59 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstdint>
 #include <vector>
+#include <string>
+
+// 3x5 bitmask font (3 columns, 5 rows from top to bottom)
+static uint16_t get_glyph(char c) {
+    switch (c) {
+        case '0': return 0b111'101'101'101'111;
+        case '1': return 0b010'110'010'010'111;
+        case '2': return 0b111'001'111'100'111;
+        case '3': return 0b111'001'111'001'111;
+        case '4': return 0b101'101'111'001'001;
+        case '5': return 0b111'100'111'001'111;
+        case '6': return 0b111'100'111'101'111;
+        case '7': return 0b111'001'001'010'010;
+        case '8': return 0b111'101'111'101'111;
+        case '9': return 0b111'101'111'001'111;
+        case 'S': return 0b111'100'111'001'111;
+        case 'E': return 0b111'100'111'100'111;
+        case 'D': return 0b110'101'101'101'110;
+        case 'L': return 0b100'100'100'100'111;
+        case 'V': return 0b101'101'101'101'010;
+        case ':': return 0b000'010'000'010'000;
+        case ' ': return 0b000'000'000'000'000;
+        default:  return 0b111'111'111'111'111;
+    }
+}
+
+// Append quads for a pixel string
+static void append_text_quads(std::vector<float> &verts, const std::string &text, float start_x, float start_y, float px_size) {
+    float cur_x = start_x;
+    for (char ch : text) {
+        uint16_t glyph = get_glyph(ch);
+        for (int row = 0; row < 5; ++row) {
+            for (int col = 0; col < 3; ++col) {
+                // bit index from top-left: bit 14 down to 0
+                int bit = 14 - (row * 3 + col);
+                if ((glyph >> bit) & 1) {
+                    float x0 = cur_x + col * px_size;
+                    float y0 = start_y + row * px_size;
+                    float x1 = x0 + px_size;
+                    float y1 = y0 + px_size;
+
+                    verts.insert(verts.end(), {
+                        x0, y0,  x1, y0,  x1, y1,
+                        x0, y0,  x1, y1,  x0, y1
+                    });
+                }
+            }
+        }
+        cur_x += 4.0f * px_size; // 3 width + 1 spacing
+    }
+}
 
 // ---- Shader: Fullscreen ray-traced tilemap lighting ----
 static const char *light_vert_src = R"(
@@ -344,6 +396,23 @@ void render(SDL_Window *window, game_state const &state) {
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
+    // 3. Draw Boxy Seed text in bottom-left corner
+    {
+        std::string seed_text = "SEED: " + std::to_string(state.seed);
+        std::vector<float> textVerts;
+        float px_size = 3.0f * SCALE;
+        float start_x = 24.0f * SCALE;
+        float start_y = (float)WINDOW_HEIGHT - (24.0f * SCALE);
+
+        append_text_quads(textVerts, seed_text, start_x, start_y, px_size);
+
+        if (!textVerts.empty()) {
+            glUniform3f(box_uColor, 0.9f, 0.9f, 0.9f); // crisp light gray
+            glBufferData(GL_ARRAY_BUFFER, textVerts.size() * sizeof(float), textVerts.data(), GL_DYNAMIC_DRAW);
+            glDrawArrays(GL_TRIANGLES, 0, textVerts.size() / 2);
+        }
+    }
+
     glBindVertexArray(0);
 
     SDL_GL_SwapWindow(window);
@@ -361,5 +430,6 @@ game_state interpolate(game_state const &current, game_state const &previous,
     result.goal_x = current.goal_x;
     result.goal_y = current.goal_y;
     result.level = current.level;
+    result.seed = current.seed;
     return result;
 }

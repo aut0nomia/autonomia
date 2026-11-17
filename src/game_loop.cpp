@@ -16,7 +16,7 @@ using namespace std::chrono_literals;
 constexpr std::chrono::nanoseconds timestep(std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(1.0 / FRAMERATE)));
 
-void run_game() {
+void run_game(std::optional<unsigned int> initial_seed) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     SDL_Log("SDL_Init failed: %s", SDL_GetError());
     return;
@@ -69,7 +69,7 @@ void run_game() {
   bool quit_game = false;
 
   game_state current_state;
-  generate_random_level(current_state);
+  generate_random_level(current_state, initial_seed);
   renderer_update_map();
 
   game_state previous_state = current_state;

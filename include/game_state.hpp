@@ -10,4 +10,5 @@ struct game_state {
   float goal_x{1000.0f};
   float goal_y{200.0f};
   int level{1};
+  unsigned int seed{0};
 };
