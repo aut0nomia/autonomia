@@ -2,17 +2,19 @@
 #include "config.hpp"
 #include "game_state.hpp"
 #include "input.hpp"
+#include "map.hpp"
 #include "physics.hpp"
 #include "renderer.hpp"
 
+#include <glad/glad.h>
 #include <SDL2/SDL.h>
 #include <chrono>
+#include <cstdio>
 
 using namespace std::chrono_literals;
 
-constexpr std::chrono::nanoseconds
-    timestep(std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::duration<double>(1.0 / FRAMERATE)));
+constexpr std::chrono::nanoseconds timestep(std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(1.0 / FRAMERATE)));
 
 void run_game() {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -20,23 +22,45 @@ void run_game() {
     return;
   }
 
-  SDL_Window *window = SDL_CreateWindow("Autonomia", SDL_WINDOWPOS_CENTERED,
-                                        SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
-                                        WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+  // Request OpenGL 3.3 Core Profile
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+  // Create window with OpenGL flag (instead of SDL_WINDOW_SHOWN)
+  SDL_Window *window = SDL_CreateWindow(
+      "Autonomia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+      WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
   if (window == nullptr) {
     SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
     SDL_Quit();
     return;
   }
 
-  SDL_Renderer *renderer = SDL_CreateRenderer(
-      window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-  if (renderer == nullptr) {
-    SDL_Log("SDL_CreateRenderer failed: %s", SDL_GetError());
+  // Create the OpenGL context (replaces SDL_CreateRenderer)
+  SDL_GLContext gl_context = SDL_GL_CreateContext(window);
+  if (gl_context == nullptr) {
+    SDL_Log("SDL_GL_CreateContext failed: %s", SDL_GetError());
     SDL_DestroyWindow(window);
     SDL_Quit();
     return;
   }
+
+  // Initialize GLAD — loads all OpenGL function pointers
+  if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+    std::fprintf(stderr, "Failed to initialize GLAD\n");
+    SDL_GL_DeleteContext(gl_context);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return;
+  }
+
+  // Enable VSync
+  SDL_GL_SetSwapInterval(1);
+
+  // Set up OpenGL viewport and shaders
+  glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+  renderer_init();
 
   using clock = std::chrono::high_resolution_clock;
 
@@ -45,7 +69,10 @@ void run_game() {
   bool quit_game = false;
 
   game_state current_state;
-  game_state previous_state;
+  generate_random_level(current_state);
+  renderer_update_map();
+
+  game_state previous_state = current_state;
 
   SDL_Event event;
 
@@ -67,10 +94,11 @@ void run_game() {
     auto alpha = (float)lag.count() / timestep.count();
     auto interpolated_state = interpolate(current_state, previous_state, alpha);
 
-    render(renderer, interpolated_state);
+    render(window, interpolated_state);
   }
 
-  SDL_DestroyRenderer(renderer);
+  renderer_cleanup();
+  SDL_GL_DeleteContext(gl_context);
   SDL_DestroyWindow(window);
   SDL_Quit();
 }

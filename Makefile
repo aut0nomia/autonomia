@@ -1,11 +1,17 @@
 CXX      := g++
-CXXFLAGS := -std=c++20 -Wall -Wextra -g -Iinclude -MMD -MP $(shell sdl2-config --cflags)
-LDFLAGS  := $(shell sdl2-config --libs)
+CC       := gcc
+CXXFLAGS := -std=c++20 -Wall -Wextra -g -Iinclude -Ivendor/glad/include -MMD -MP $(shell sdl2-config --cflags)
+CFLAGS   := -Wall -g -Ivendor/glad/include
+LDFLAGS  := $(shell sdl2-config --libs) -lGL -ldl
 BUILD    := build
 TARGET   := $(BUILD)/app
 
 SRCS := $(wildcard src/*.cpp)
 OBJS := $(SRCS:src/%.cpp=$(BUILD)/%.o)
+
+# GLAD (C file)
+OBJS += $(BUILD)/glad.o
+
 DEPS := $(OBJS:.o=.d)
 
 TEST_TARGET := $(BUILD)/test_runner
@@ -28,6 +34,10 @@ $(TARGET): $(OBJS)
 
 $(BUILD)/%.o: src/%.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile GLAD (C, not C++)
+$(BUILD)/glad.o: vendor/glad/src/glad.c | $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TEST_TARGET): $(TEST_OBJS)
 	$(CXX) $(TEST_OBJS) -o $@
