@@ -1,11 +1,12 @@
 #include "map.hpp"
-#include <random>
 #include <algorithm>
+#include <random>
 
 static std::mt19937 rng(std::random_device{}());
 
 bool is_solid_tile(int col, int row) {
-  if (row >= MAP_ROWS) return true; // bottom is solid floor
+  if (row >= MAP_ROWS)
+    return true; // bottom is solid floor
   if (col < 0 || col >= MAP_COLS || row < 0) {
     return false; // Open air on left, right, and top
   }
@@ -18,11 +19,10 @@ bool is_solid_at(float x, float y) {
   return is_solid_tile(col, row);
 }
 
-const char* get_map_buffer() {
-  return &g_map[0][0];
-}
+const char *get_map_buffer() { return &g_map[0][0]; }
 
-void generate_random_level(game_state &state, std::optional<unsigned int> seed_override) {
+void generate_random_level(game_state &state,
+                           std::optional<unsigned int> seed_override) {
   // Use passed seed or generate a new random seed
   unsigned int seed = seed_override.value_or(std::random_device{}() % 1000000);
   state.seed = seed;
@@ -64,8 +64,9 @@ void generate_random_level(game_state &state, std::optional<unsigned int> seed_o
       }
     }
 
-    // B) With 50% chance, create a parallel wall next to it (a Wall-Jump Chute/Shaft!)
-    // Spaced 10-14 tiles away — perfect for ping-pong wall jumping
+    // B) With 50% chance, create a parallel wall next to it (a Wall-Jump
+    // Chute/Shaft!) Spaced 10-14 tiles away — perfect for ping-pong wall
+    // jumping
     if (rng() % 2 == 0 && start_c + thick + 14 < MAP_COLS) {
       int shaft_c = start_c + thick + 11;
       for (int r = floor_top - wall_h; r < floor_top; ++r) {

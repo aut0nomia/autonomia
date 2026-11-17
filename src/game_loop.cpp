@@ -6,15 +6,16 @@
 #include "physics.hpp"
 #include "renderer.hpp"
 
-#include <glad/glad.h>
 #include <SDL2/SDL.h>
 #include <chrono>
 #include <cstdio>
+#include <glad/glad.h>
 
 using namespace std::chrono_literals;
 
-constexpr std::chrono::nanoseconds timestep(std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(1.0 / FRAMERATE)));
+constexpr std::chrono::nanoseconds
+    timestep(std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::duration<double>(1.0 / FRAMERATE)));
 
 void run_game(std::optional<unsigned int> initial_seed) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -29,8 +30,8 @@ void run_game(std::optional<unsigned int> initial_seed) {
 
   // Create window with OpenGL flag (instead of SDL_WINDOW_SHOWN)
   SDL_Window *window = SDL_CreateWindow(
-      "Autonomia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-      WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+      "Autonomia", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH,
+      WINDOW_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
   if (window == nullptr) {
     SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
     SDL_Quit();
