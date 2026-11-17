@@ -1,7 +1,7 @@
 #pragma once
 
-constexpr int WINDOW_WIDTH = 1920 * 2;
-constexpr int WINDOW_HEIGHT = 1080 * 2;
+constexpr int WINDOW_WIDTH = 1920;
+constexpr int WINDOW_HEIGHT = 1080;
 constexpr int FRAMERATE = 60;
 constexpr float DT = 1.0f / FRAMERATE;
 
