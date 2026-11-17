@@ -10,7 +10,9 @@
 
 using namespace std::chrono_literals;
 
-constexpr std::chrono::nanoseconds timestep(16ms);
+constexpr std::chrono::nanoseconds
+    timestep(std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::duration<double>(1.0 / FRAMERATE)));
 
 void run_game() {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
